@@ -2,6 +2,8 @@
 
 A survival game designed to be played by [Claude Code](https://docs.anthropic.com/en/docs/claude-code). The LLM modifies a JSON world state, and a verifier script validates each move through a DAG of 23 checkpoints with anti-cheat protections.
 
+<video src="assets/showcase.mp4" autoplay loop muted playsinline></video>
+
 ## Why
 
 Claude Code has an internal task system (TaskCreate/TaskUpdate) that tracks work items. We wanted to test driving that system from the outside — by having a script generate task descriptions on stdout, and letting Claude pick them up, execute them, and validate each step.
