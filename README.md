@@ -1,15 +1,17 @@
-# Survival v3 — Checkpoint-Verified State Machine
+# claude-code-survivor-game
 
-A survival game designed to be played by an LLM (Claude Code). The LLM modifies a JSON world state, and a verifier script validates each move through a DAG of checkpoints with anti-cheat protections.
+A survival game designed to be played by [Claude Code](https://docs.anthropic.com/en/docs/claude-code). The LLM modifies a JSON world state, and a verifier script validates each move through a DAG of 23 checkpoints with anti-cheat protections.
 
 ## Why
 
-LLMs tend to batch-complete tasks without doing actual work. This game forces the LLM to **prove** each step by modifying `state.json` with the correct values, then running a verifier that checks preconditions, expected state, and integrity of previous moves.
+Claude Code has an internal task system (TaskCreate/TaskUpdate) that tracks work items. We wanted to test driving that system from the outside — by having a script generate task descriptions on stdout, and letting Claude pick them up, execute them, and validate each step.
+
+The challenge: LLMs tend to batch-complete tasks without doing actual work. This game forces Claude to **prove** each step by modifying `state.json` with correct values, then running a verifier that checks preconditions, expected state, and integrity of previous moves.
 
 ## How it works
 
 ```
-state.json        ← LLM modifies (the world state)
+state.json        ← Claude edits this (the world state)
 .audit/
   checkpoints.json ← only the verifier writes (validated tags + hashes)
 verify             ← compiled binary — the "compiler"
@@ -18,15 +20,15 @@ verify             ← compiled binary — the "compiler"
 Each checkpoint follows this flow:
 
 ```
-LLM reads task description
-  → LLM edits state.json
-    → LLM runs ./verify <tag>
+Claude reads task description
+  → edits state.json
+    → runs ./verify <tag>
       → verifier checks:
          1. prerequisites validated?
          2. state.json has correct values?
          3. previous checkpoints still intact? (anti-tampering)
       → OK: checkpoint recorded, new tasks printed
-      → ERR: error message, LLM must fix and retry
+      → ERR: error message, Claude fixes and retries
 ```
 
 ## Setup
@@ -37,7 +39,7 @@ make build    # compiles verify.py → ./verify binary, removes source
 ./verify init # creates state.json + .audit/, prints first tasks
 ```
 
-> The binary is compiled so the LLM cannot read the rules/solutions from source.
+The binary is compiled so Claude cannot read the rules/solutions from source.
 
 ## Playing
 
@@ -49,18 +51,18 @@ Tell Claude Code:
 
 | Command | Description |
 |---------|-------------|
-| `./verify init` | Initialize game — creates state.json and first tasks |
+| `./verify init` | Initialize — creates state.json and prints first tasks |
 | `./verify <tag>` | Validate a checkpoint |
 | `./verify status` | Show progress and available tasks |
 | `./verify reset` | Wipe game state |
 
 ## Anti-cheat
 
-1. **Prerequisite gating** — each checkpoint requires prior checkpoints to be validated
+1. **Prerequisite gating** — each checkpoint requires prior ones to be validated first
 2. **Value verification** — exact values checked, not just key presence
-3. **Anti-tampering** — all previously validated conditions are re-checked on every verify call
+3. **Anti-tampering** — all previously validated conditions re-checked on every verify call
 4. **Hash chain** — SHA256 of state.json recorded after each checkpoint for audit trail
-5. **Compiled binary** — LLM cannot read rules from source
+5. **Compiled binary** — Claude cannot read rules from source
 
 ## Checkpoint DAG
 
@@ -68,34 +70,34 @@ Tell Claude Code:
 
 ```mermaid
 graph TD
-    survey["survey<br/>Explorer le terrain"]
-    scavenge["scavenge<br/>Fouiller l'epave"]
-    check_survivors["check_survivors<br/>Verifier les survivants"]
+    survey["survey<br/>Survey the terrain"]
+    scavenge["scavenge<br/>Scavenge the wreckage"]
+    check_survivors["check_survivors<br/>Check on survivors"]
 
-    collect_wood["collect_wood<br/>Collecter du bois"]
-    collect_stones["collect_stones<br/>Collecter des pierres"]
-    free_pilot["free_pilot<br/>Liberer le pilote"]
-    treat_chen["treat_chen<br/>Soigner Dr. Chen"]
+    collect_wood["collect_wood<br/>Collect wood"]
+    collect_stones["collect_stones<br/>Collect stones"]
+    free_pilot["free_pilot<br/>Free the pilot"]
+    treat_chen["treat_chen<br/>Treat Dr. Chen"]
 
-    build_fire["build_fire<br/>Construire un feu"]
-    craft_tools["craft_tools<br/>Fabriquer des outils"]
-    build_shelter["build_shelter<br/>Construire un abri"]
-    climb_hill["climb_hill<br/>Escalader la colline"]
+    build_fire["build_fire<br/>Build a fire"]
+    craft_tools["craft_tools<br/>Craft tools"]
+    build_shelter["build_shelter<br/>Build a shelter"]
+    climb_hill["climb_hill<br/>Climb the hill"]
 
-    explore_cave["explore_cave<br/>Explorer la grotte ⚠️"]
-    explore_forest["explore_forest<br/>Explorer la foret ⚠️"]
-    fight_creature["fight_creature<br/>Combattre la creature"]
+    explore_cave["explore_cave<br/>Explore the cave ⚠️"]
+    explore_forest["explore_forest<br/>Explore the forest ⚠️"]
+    fight_creature["fight_creature<br/>Fight the creature"]
 
-    mine_cave["mine_cave<br/>Miner la grotte"]
-    build_workshop["build_workshop<br/>Construire un atelier"]
-    chen_electronics["chen_electronics<br/>Electronique Dr. Chen"]
-    build_antenna["build_antenna<br/>Construire une antenne"]
-    build_signal_fire["build_signal_fire<br/>Feu de signal"]
+    mine_cave["mine_cave<br/>Mine the cave"]
+    build_workshop["build_workshop<br/>Build a workshop"]
+    chen_electronics["chen_electronics<br/>Dr. Chen builds electronics"]
+    build_antenna["build_antenna<br/>Build an antenna"]
+    build_signal_fire["build_signal_fire<br/>Build a signal fire"]
 
-    assemble_radio["assemble_radio<br/>Assembler la radio"]
-    send_sos["send_sos<br/>Envoyer le SOS ⚠️"]
-    defend_camp["defend_camp<br/>Defendre le camp"]
-    prepare_landing["prepare_landing<br/>VICTOIRE 🚁"]
+    assemble_radio["assemble_radio<br/>Assemble the radio"]
+    send_sos["send_sos<br/>Send SOS ⚠️"]
+    defend_camp["defend_camp<br/>Defend the camp"]
+    prepare_landing["prepare_landing<br/>VICTORY 🚁"]
 
     survey --> collect_wood
     survey --> collect_stones
@@ -105,6 +107,7 @@ graph TD
     scavenge --> treat_chen
     scavenge --> craft_tools
     scavenge --> build_shelter
+    scavenge --> chen_electronics
 
     check_survivors --> free_pilot
     check_survivors --> treat_chen
@@ -131,7 +134,6 @@ graph TD
     explore_cave --> fight_creature
     explore_cave --> mine_cave
     explore_cave --> chen_electronics
-    scavenge --> chen_electronics
 
     explore_forest --> build_signal_fire
 
@@ -160,4 +162,4 @@ graph TD
     style send_sos fill:#f59e0b,color:#000
 ```
 
-Nodes marked with ⚠️ trigger surprise events that unlock new threats.
+Nodes marked ⚠️ trigger surprise events that spawn new threats.

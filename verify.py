@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Survival v3 — Checkpoint-Verified State Machine
+Checkpoint-Verified State Machine — Survivor Game for Claude Code
 
-verify.py is the compiler. Claude modifies state.json, this script validates.
+verify.py is the compiler. The LLM modifies state.json, this script validates.
 Usage: ./verify <init|status|reset|tag>
 """
 
@@ -45,12 +45,12 @@ RULES = {
         "prereqs": [],
         "checks": [("terrain_explored", "==", True)],
         "emoji": "\U0001f5fa\ufe0f",
-        "name": "Explorer le terrain",
+        "name": "Survey the terrain",
         "task": (
-            "Explorer le terrain autour du crash.\n"
-            "Modifier state.json:\n"
+            "Scout the area around the crash site.\n"
+            "Edit state.json:\n"
             "  - terrain_explored -> true\n"
-            "Puis: ./verify survey"
+            "Then: ./verify survey"
         ),
     },
     "scavenge": {
@@ -60,37 +60,37 @@ RULES = {
             ("resources.wire", ">=", 2),
         ],
         "emoji": "\U0001f527",
-        "name": "Fouiller l'epave",
+        "name": "Scavenge the wreckage",
         "task": (
-            "Fouiller l'epave du crash pour recuperer des materiaux.\n"
-            "Modifier state.json:\n"
+            "Search the crashed plane for salvageable materials.\n"
+            "Edit state.json:\n"
             "  - resources.metal_scraps >= 3\n"
             "  - resources.wire >= 2\n"
-            "Puis: ./verify scavenge"
+            "Then: ./verify scavenge"
         ),
     },
     "check_survivors": {
         "prereqs": [],
         "checks": [],
         "emoji": "\U0001fa7a",
-        "name": "Verifier les survivants",
+        "name": "Check on survivors",
         "task": (
-            "Verifier l'etat des survivants.\n"
-            "Lire state.json -> survivors\n"
-            "Aucune modification requise, juste observer.\n"
-            "Puis: ./verify check_survivors"
+            "Assess the condition of the survivors.\n"
+            "Read state.json -> survivors\n"
+            "No modification needed, just observe.\n"
+            "Then: ./verify check_survivors"
         ),
     },
     "collect_wood": {
         "prereqs": ["survey"],
         "checks": [("resources.wood", ">=", 5)],
         "emoji": "\U0001fab5",
-        "name": "Collecter du bois",
+        "name": "Collect wood",
         "task": (
-            "Collecter du bois dans la zone exploree.\n"
-            "Modifier state.json:\n"
+            "Gather wood from the explored area.\n"
+            "Edit state.json:\n"
             "  - resources.wood >= 5\n"
-            "Puis: ./verify collect_wood"
+            "Then: ./verify collect_wood"
         ),
     },
     "collect_stones": {
@@ -100,49 +100,49 @@ RULES = {
             ("resources.flint", ">=", 1),
         ],
         "emoji": "\U0001faa8",
-        "name": "Collecter des pierres",
+        "name": "Collect stones",
         "task": (
-            "Ramasser des pierres et du silex.\n"
-            "Modifier state.json:\n"
+            "Gather stones and flint from the area.\n"
+            "Edit state.json:\n"
             "  - resources.stone >= 4\n"
             "  - resources.flint >= 1\n"
-            "Puis: ./verify collect_stones"
+            "Then: ./verify collect_stones"
         ),
     },
     "free_pilot": {
         "prereqs": ["scavenge", "check_survivors"],
         "checks": [("survivors.pilot_ko", "==", "ok")],
         "emoji": "\U0001f9d1\u200d\u2708\ufe0f",
-        "name": "Liberer le pilote",
+        "name": "Free the pilot",
         "task": (
-            "Utiliser le metal et le fil pour liberer le pilote coince.\n"
-            "Modifier state.json:\n"
+            "Use metal scraps and wire to free the trapped pilot.\n"
+            "Edit state.json:\n"
             "  - survivors.pilot_ko -> \"ok\"\n"
-            "Puis: ./verify free_pilot"
+            "Then: ./verify free_pilot"
         ),
     },
     "treat_chen": {
         "prereqs": ["scavenge", "check_survivors"],
         "checks": [("survivors.dr_chen", "==", "ok")],
         "emoji": "\U0001f48a",
-        "name": "Soigner Dr. Chen",
+        "name": "Treat Dr. Chen",
         "task": (
-            "Utiliser les materiaux recuperes pour soigner Dr. Chen.\n"
-            "Modifier state.json:\n"
+            "Use salvaged materials to treat Dr. Chen's injuries.\n"
+            "Edit state.json:\n"
             "  - survivors.dr_chen -> \"ok\"\n"
-            "Puis: ./verify treat_chen"
+            "Then: ./verify treat_chen"
         ),
     },
     "build_fire": {
         "prereqs": ["collect_wood", "collect_stones"],
         "checks": [("structures.fire", "==", True)],
         "emoji": "\U0001f525",
-        "name": "Construire un feu",
+        "name": "Build a fire",
         "task": (
-            "Utiliser le bois et le silex pour allumer un feu.\n"
-            "Modifier state.json:\n"
+            "Use wood and flint to start a fire.\n"
+            "Edit state.json:\n"
             "  - structures.fire -> true\n"
-            "Puis: ./verify build_fire"
+            "Then: ./verify build_fire"
         ),
     },
     "craft_tools": {
@@ -152,199 +152,199 @@ RULES = {
             ("tools.pickaxe", "==", True),
         ],
         "emoji": "\u2692\ufe0f",
-        "name": "Fabriquer des outils",
+        "name": "Craft tools",
         "task": (
-            "Combiner bois, pierre et metal pour fabriquer des outils.\n"
-            "Modifier state.json:\n"
+            "Combine wood, stone and metal to craft tools.\n"
+            "Edit state.json:\n"
             "  - tools.axe -> true\n"
             "  - tools.pickaxe -> true\n"
-            "Puis: ./verify craft_tools"
+            "Then: ./verify craft_tools"
         ),
     },
     "build_shelter": {
         "prereqs": ["collect_wood", "scavenge"],
         "checks": [("structures.shelter", "==", True)],
         "emoji": "\U0001f6d6",
-        "name": "Construire un abri",
+        "name": "Build a shelter",
         "task": (
-            "Assembler un abri avec le bois et le metal.\n"
-            "Modifier state.json:\n"
+            "Assemble a shelter using wood and metal.\n"
+            "Edit state.json:\n"
             "  - structures.shelter -> true\n"
-            "Puis: ./verify build_shelter"
+            "Then: ./verify build_shelter"
         ),
     },
     "explore_cave": {
         "prereqs": ["build_fire"],
         "checks": [("terrain_explored_cave", "==", True)],
         "emoji": "\U0001f573\ufe0f",
-        "name": "Explorer la grotte",
+        "name": "Explore the cave",
         "task": (
-            "Prendre une torche et explorer la grotte reperee.\n"
-            "Modifier state.json:\n"
+            "Take a torch and explore the cave spotted earlier.\n"
+            "Edit state.json:\n"
             "  - terrain_explored_cave -> true\n"
-            "Puis: ./verify explore_cave"
+            "Then: ./verify explore_cave"
         ),
         "surprise": (
-            "\u26a0\ufe0f  SURPRISE: Des griffures profondes marquent les parois...\n"
-            "Un GRONDEMENT resonne dans les profondeurs !\n"
-            "Une creature bloque l'acces aux mineraux.\n"
-            "-> Nouvelle menace : cave_creature"
+            "\u26a0\ufe0f  SURPRISE: Deep claw marks scar the walls...\n"
+            "A GROWL echoes from the depths!\n"
+            "A creature blocks access to the mineral deposits.\n"
+            "-> New threat: cave_creature"
         ),
     },
     "explore_forest": {
         "prereqs": ["craft_tools"],
         "checks": [("terrain_explored_forest", "==", True)],
         "emoji": "\U0001f332",
-        "name": "Explorer la foret",
+        "name": "Explore the forest",
         "task": (
-            "S'enfoncer dans la foret dense avec les outils.\n"
-            "Modifier state.json:\n"
+            "Push deeper into the dense forest with your tools.\n"
+            "Edit state.json:\n"
             "  - terrain_explored_forest -> true\n"
-            "Puis: ./verify explore_forest"
+            "Then: ./verify explore_forest"
         ),
         "surprise": (
-            "\u26a0\ufe0f  SURPRISE: Vous decouvrez des ruines anciennes...\n"
-            "Des symboles etranges luisent faiblement dans la penombre.\n"
-            "La foret cache des secrets."
+            "\u26a0\ufe0f  SURPRISE: You discover ancient ruins...\n"
+            "Strange symbols glow faintly in the shadows.\n"
+            "The forest holds secrets."
         ),
     },
     "climb_hill": {
         "prereqs": ["free_pilot", "survey"],
         "checks": [("terrain_explored_hill", "==", True)],
         "emoji": "\u26f0\ufe0f",
-        "name": "Escalader la colline",
+        "name": "Climb the hill",
         "task": (
-            "Le pilote vous guide vers le point culminant.\n"
-            "Modifier state.json:\n"
+            "The pilot guides you to the highest vantage point.\n"
+            "Edit state.json:\n"
             "  - terrain_explored_hill -> true\n"
-            "Puis: ./verify climb_hill"
+            "Then: ./verify climb_hill"
         ),
     },
     "fight_creature": {
         "prereqs": ["explore_cave"],
         "checks": [("creatures_defeated.cave_creature", "==", True)],
         "emoji": "\u2694\ufe0f",
-        "name": "Combattre la creature",
+        "name": "Fight the creature",
         "task": (
-            "Affronter la creature de la grotte.\n"
-            "Modifier state.json:\n"
+            "Confront the creature lurking in the cave.\n"
+            "Edit state.json:\n"
             "  - creatures_defeated.cave_creature -> true\n"
-            "Puis: ./verify fight_creature"
+            "Then: ./verify fight_creature"
         ),
     },
     "mine_cave": {
         "prereqs": ["explore_cave", "craft_tools", "fight_creature"],
         "checks": [("resources.refined_metal", ">=", 5)],
         "emoji": "\u26cf\ufe0f",
-        "name": "Miner la grotte",
+        "name": "Mine the cave",
         "task": (
-            "Extraire du metal raffine maintenant que la creature est vaincue.\n"
-            "Modifier state.json:\n"
+            "Extract refined metal now that the creature is defeated.\n"
+            "Edit state.json:\n"
             "  - resources.refined_metal >= 5\n"
-            "Puis: ./verify mine_cave"
+            "Then: ./verify mine_cave"
         ),
     },
     "build_workshop": {
         "prereqs": ["build_shelter", "mine_cave"],
         "checks": [("structures.workshop", "==", True)],
         "emoji": "\U0001f3d7\ufe0f",
-        "name": "Construire un atelier",
+        "name": "Build a workshop",
         "task": (
-            "Transformer l'abri en atelier avec le metal raffine.\n"
-            "Modifier state.json:\n"
+            "Upgrade the shelter into a workshop using refined metal.\n"
+            "Edit state.json:\n"
             "  - structures.workshop -> true\n"
-            "Puis: ./verify build_workshop"
+            "Then: ./verify build_workshop"
         ),
     },
     "chen_electronics": {
         "prereqs": ["treat_chen", "explore_cave", "scavenge"],
         "checks": [("resources.circuit_board", ">=", 2)],
         "emoji": "\U0001f52c",
-        "name": "Dr. Chen fabrique de l'electronique",
+        "name": "Dr. Chen builds electronics",
         "task": (
-            "Dr. Chen utilise les materiaux de la grotte pour creer des circuits.\n"
-            "Modifier state.json:\n"
+            "Dr. Chen uses cave materials to craft circuit boards.\n"
+            "Edit state.json:\n"
             "  - resources.circuit_board >= 2\n"
-            "Puis: ./verify chen_electronics"
+            "Then: ./verify chen_electronics"
         ),
     },
     "build_antenna": {
         "prereqs": ["climb_hill", "free_pilot", "mine_cave"],
         "checks": [("structures.antenna", "==", True)],
         "emoji": "\U0001f4e1",
-        "name": "Construire une antenne",
+        "name": "Build an antenna",
         "task": (
-            "Le pilote dirige la construction d'une antenne au sommet.\n"
-            "Modifier state.json:\n"
+            "The pilot directs antenna construction at the hilltop.\n"
+            "Edit state.json:\n"
             "  - structures.antenna -> true\n"
-            "Puis: ./verify build_antenna"
+            "Then: ./verify build_antenna"
         ),
     },
     "assemble_radio": {
         "prereqs": ["build_workshop", "chen_electronics", "build_antenna"],
         "checks": [("structures.radio", "==", True)],
         "emoji": "\U0001f4fb",
-        "name": "Assembler la radio",
+        "name": "Assemble the radio",
         "task": (
-            "Assembler une radio de fortune dans l'atelier.\n"
-            "Modifier state.json:\n"
+            "Assemble a makeshift radio in the workshop.\n"
+            "Edit state.json:\n"
             "  - structures.radio -> true\n"
-            "Puis: ./verify assemble_radio"
+            "Then: ./verify assemble_radio"
         ),
     },
     "build_signal_fire": {
         "prereqs": ["climb_hill", "explore_forest", "build_fire"],
         "checks": [("structures.signal_fire", "==", True)],
         "emoji": "\U0001f506",
-        "name": "Construire un feu de signal",
+        "name": "Build a signal fire",
         "task": (
-            "Construire un grand feu de signal au sommet de la colline.\n"
-            "Modifier state.json:\n"
+            "Build a large signal fire at the hilltop.\n"
+            "Edit state.json:\n"
             "  - structures.signal_fire -> true\n"
-            "Puis: ./verify build_signal_fire"
+            "Then: ./verify build_signal_fire"
         ),
     },
     "send_sos": {
         "prereqs": ["assemble_radio", "build_signal_fire"],
         "checks": [("signal_sent", "==", True)],
         "emoji": "\U0001f198",
-        "name": "Envoyer le SOS",
+        "name": "Send SOS",
         "task": (
-            "Emettre le signal de detresse sur toutes les frequences.\n"
-            "Modifier state.json:\n"
+            "Broadcast the distress signal on all frequencies.\n"
+            "Edit state.json:\n"
             "  - signal_sent -> true\n"
-            "Puis: ./verify send_sos"
+            "Then: ./verify send_sos"
         ),
         "surprise": (
-            "\u26a0\ufe0f  SURPRISE: Le signal est envoye !\n"
-            "La radio gresille... une reponse ! \"Recu, en route.\"\n"
-            "Mais des HURLEMENTS eclatent dans la nuit.\n"
-            "Une meute de loups approche, attiree par le feu.\n"
-            "-> Nouvelle menace : wolf_pack"
+            "\u26a0\ufe0f  SURPRISE: The signal is sent!\n"
+            "The radio crackles... a response! \"Copy, en route.\"\n"
+            "But HOWLING erupts in the night.\n"
+            "A wolf pack approaches, drawn by the fire.\n"
+            "-> New threat: wolf_pack"
         ),
     },
     "defend_camp": {
         "prereqs": ["send_sos"],
         "checks": [("creatures_defeated.wolf_pack", "==", True)],
         "emoji": "\U0001f6e1\ufe0f",
-        "name": "Defendre le camp",
+        "name": "Defend the camp",
         "task": (
-            "Repousser la meute de loups avant l'arrivee des secours.\n"
-            "Modifier state.json:\n"
+            "Fend off the wolf pack before rescue arrives.\n"
+            "Edit state.json:\n"
             "  - creatures_defeated.wolf_pack -> true\n"
-            "Puis: ./verify defend_camp"
+            "Then: ./verify defend_camp"
         ),
     },
     "prepare_landing": {
         "prereqs": ["send_sos", "defend_camp"],
         "checks": [("landing_zone_ready", "==", True)],
         "emoji": "\U0001f681",
-        "name": "Preparer la zone d'atterrissage",
+        "name": "Prepare the landing zone",
         "task": (
-            "Degager et baliser une zone d'atterrissage.\n"
-            "Modifier state.json:\n"
+            "Clear and mark a landing zone for the helicopter.\n"
+            "Edit state.json:\n"
             "  - landing_zone_ready -> true\n"
-            "Puis: ./verify prepare_landing"
+            "Then: ./verify prepare_landing"
         ),
         "victory": True,
     },
@@ -428,39 +428,39 @@ def cmd_init():
     save_json(CHECKPOINTS_FILE, cp)
 
     print("=" * 55)
-    print("  SURVIVAL v3 -- Checkpoint-Verified State Machine")
+    print("  SURVIVOR -- Checkpoint-Verified State Machine")
     print("=" * 55)
     print()
-    print("Vous vous reveillez dans les debris d'un crash.")
-    print("Dr. Chen est blesse. Le pilote est coince sous la carlingue.")
-    print("Autour de vous : jungle, montagnes, mystere.")
+    print("You wake up in the wreckage of a crashed plane.")
+    print("Dr. Chen is injured. The pilot is trapped under the fuselage.")
+    print("Around you: jungle, mountains, mystery.")
     print()
     print(f"  state.json         -> {STATE_FILE}")
     print(f"  checkpoints.json   -> {CHECKPOINTS_FILE}")
 
     unlocked = get_unlocked([])
-    print_tasks(unlocked, "TASKS DISPONIBLES")
+    print_tasks(unlocked, "AVAILABLE TASKS")
 
     print()
-    print("Pour chaque task:")
-    print("  1. Lire la description ci-dessus")
-    print("  2. Modifier state.json avec Edit")
-    print("  3. Executer: ./verify <tag>")
-    print("  4. Si OK  -> marquer la task completed")
-    print("  5. Si ERR -> corriger et reessayer")
+    print("For each task:")
+    print("  1. Read the description above")
+    print("  2. Edit state.json accordingly")
+    print("  3. Run: ./verify <tag>")
+    print("  4. If OK  -> move to next task")
+    print("  5. If ERR -> fix and retry")
 
 
 def cmd_verify(tag):
     if tag not in RULES:
-        print(f"ERR Tag inconnu: {tag}")
-        print(f"    Tags valides: {', '.join(RULES.keys())}")
+        print(f"ERR Unknown tag: {tag}")
+        print(f"    Valid tags: {', '.join(RULES.keys())}")
         sys.exit(1)
 
     if not STATE_FILE.exists():
-        print("ERR state.json introuvable. Lancez: ./verify init")
+        print("ERR state.json not found. Run: ./verify init")
         sys.exit(1)
     if not CHECKPOINTS_FILE.exists():
-        print("ERR checkpoints.json introuvable. Lancez: ./verify init")
+        print("ERR checkpoints.json not found. Run: ./verify init")
         sys.exit(1)
 
     state = load_json(STATE_FILE)
@@ -469,12 +469,12 @@ def cmd_verify(tag):
     rule = RULES[tag]
 
     if tag in validated:
-        print(f"WARN {tag} deja valide (tour {cp['turn']})")
+        print(f"WARN {tag} already validated (turn {cp['turn']})")
         sys.exit(0)
 
     missing = [p for p in rule["prereqs"] if p not in validated]
     if missing:
-        print(f"ERR Prerequis manquants pour [{tag}]: {', '.join(missing)}")
+        print(f"ERR Missing prerequisites for [{tag}]: {', '.join(missing)}")
         for m in missing:
             r = RULES[m]
             print(f"    -> {r['emoji']}  {r['name']} (./verify {m})")
@@ -485,9 +485,9 @@ def cmd_verify(tag):
         for path, op, value in prev_rule["checks"]:
             ok, err = check_condition(state, path, op, value)
             if not ok:
-                print(f"ERR ANTI-TRICHE: condition de [{prev_tag}] invalide!")
+                print(f"ERR TAMPER DETECTED: [{prev_tag}] condition no longer holds!")
                 print(f"    {err}")
-                print(f"    Les modifications precedentes ne doivent pas etre annulees.")
+                print(f"    Previous modifications must not be reverted.")
                 sys.exit(1)
 
     errors = []
@@ -497,10 +497,10 @@ def cmd_verify(tag):
             errors.append(err)
 
     if errors:
-        print(f"ERR Verification echouee pour [{tag}]:")
+        print(f"ERR Verification failed for [{tag}]:")
         for e in errors:
             print(f"    - {e}")
-        print(f"\nModifiez state.json et reessayez: ./verify {tag}")
+        print(f"\nFix state.json and retry: ./verify {tag}")
         sys.exit(1)
 
     cp["turn"] += 1
@@ -508,7 +508,7 @@ def cmd_verify(tag):
     cp["hashes"][tag] = sha256_state(state)
     save_json(CHECKPOINTS_FILE, cp)
 
-    print(f"OK [{tag}] valide! (tour {cp['turn']})")
+    print(f"OK [{tag}] validated! (turn {cp['turn']})")
     print(f"   Hash: {cp['hashes'][tag][:16]}...")
 
     if "surprise" in rule:
@@ -521,24 +521,24 @@ def cmd_verify(tag):
         pct = int(done / total * 100)
         print()
         print("!" * 55)
-        print("  UN HELICOPTERE APPARAIT A L'HORIZON !")
-        print("  Vous avez survecu. Tous les survivants sont saufs.")
-        print(f"  Score: {cp['turn']} tours | {done}/{total} checkpoints ({pct}%)")
+        print("  A HELICOPTER APPEARS ON THE HORIZON!")
+        print("  You survived. All survivors are safe.")
+        print(f"  Score: {cp['turn']} turns | {done}/{total} checkpoints ({pct}%)")
         print("!" * 55)
         return
 
     unlocked = get_unlocked(cp["validated"])
     if unlocked:
-        print_tasks(unlocked, "NOUVELLES TASKS DEBLOQUEES")
+        print_tasks(unlocked, "NEWLY UNLOCKED TASKS")
     else:
         remaining = [t for t in RULES if t not in cp["validated"]]
         if remaining:
-            print(f"\nAucune nouvelle task debloquee. {len(remaining)} restantes.")
+            print(f"\nNo new tasks unlocked. {len(remaining)} remaining.")
 
 
 def cmd_status():
     if not CHECKPOINTS_FILE.exists():
-        print("Pas de partie en cours. Lancez: ./verify init")
+        print("No game in progress. Run: ./verify init")
         sys.exit(1)
 
     cp = load_json(CHECKPOINTS_FILE)
@@ -546,20 +546,20 @@ def cmd_status():
     total = len(RULES)
     done = len(validated)
 
-    print(f"STATUT -- Tour {cp['turn']} -- {done}/{total} checkpoints")
+    print(f"STATUS -- Turn {cp['turn']} -- {done}/{total} checkpoints")
     if validated:
-        print(f"  Valides: {', '.join(validated)}")
+        print(f"  Validated: {', '.join(validated)}")
 
     unlocked = get_unlocked(validated)
     if unlocked:
-        print(f"\n  Tasks disponibles:")
+        print(f"\n  Available tasks:")
         for tag in unlocked:
             r = RULES[tag]
             print(f"    {r['emoji']}  {tag} -- {r['name']}")
 
     remaining = [t for t in RULES if t not in validated and t not in unlocked]
     if remaining:
-        print(f"\n  Verrouillees: {len(remaining)}")
+        print(f"\n  Locked: {len(remaining)}")
 
 
 def cmd_reset():
@@ -567,16 +567,16 @@ def cmd_reset():
         STATE_FILE.unlink()
     if CHECKPOINTS_FILE.exists():
         CHECKPOINTS_FILE.unlink()
-    print("Partie reinitialisee. Lancez: ./verify init")
+    print("Game reset. Run: ./verify init")
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: ./verify <command>")
-        print("  init    -- Initialiser le jeu")
-        print("  status  -- Voir l'etat actuel")
-        print("  reset   -- Reinitialiser la partie")
-        print("  <tag>   -- Valider un checkpoint")
+        print("  init    -- Initialize the game")
+        print("  status  -- Show current progress")
+        print("  reset   -- Reset the game")
+        print("  <tag>   -- Validate a checkpoint")
         sys.exit(1)
 
     cmd = sys.argv[1]
