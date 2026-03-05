@@ -1,0 +1,6 @@
+.audit/
+verify
+__pycache__/
+*.spec
+build/
+dist/
